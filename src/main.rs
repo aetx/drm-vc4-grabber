@@ -136,6 +136,14 @@ fn main() {
                 .help("The device path of the DRM device to capture the image from."),
         )
         .arg(
+            Arg::with_name("max-refresh")
+                .short("r")
+                .long("max-refresh")
+                .default_value("20")
+                .takes_value(true)
+                .help("Refresh at most this many times per second"),
+        )
+        .arg(
             Arg::with_name("address")
                 .short("a")
                 .long("address")
@@ -162,6 +170,7 @@ fn main() {
     let device_path = matches.value_of("device").unwrap();
     let card = Card::open(device_path);
     let authenticated = card.authenticated().unwrap();
+    let max_refresh: u64 = matches.value_of("max-refresh").unwrap().parse().unwrap();
 
     if verbose {
         let driver = card.get_driver().unwrap();
@@ -192,7 +201,7 @@ fn main() {
         loop {
             if let Some(fb) = find_framebuffer(&card, verbose) {
                 dump_and_send_framebuffer(&mut socket, &card, fb, verbose).unwrap();
-                thread::sleep(Duration::from_millis(1000/20));
+                thread::sleep(Duration::from_millis(1000/max_refresh));
             } else {
                 thread::sleep(Duration::from_secs(1));
             }
