@@ -4,6 +4,7 @@ extern crate nix;
 use std::fs::{File, OpenOptions};
 use std::net::TcpStream;
 use std::os::fd::AsFd;
+use std::time::Instant;
 
 use clap::{App, Arg};
 use drm::control::framebuffer::Handle;
@@ -76,9 +77,15 @@ fn dump_and_send_framebuffer(
     fb: Handle,
     verbose: bool,
 ) -> StdResult<()> {
+    let now = Instant::now();
     let img = dump_framebuffer_to_image(card, fb, verbose);
+    let elapsed_time = now.elapsed();
+    println!(">> FB Read: {}ms", elapsed_time.as_millis());
     if let Ok(img) = img {
+        let now = Instant::now();
         send_dumped_image(socket, &img, verbose)?;
+        let elapsed_time = now.elapsed();
+        println!(">> FB Send: {}ms", elapsed_time.as_millis());
     } else {
         println!("Error dumping framebuffer to image.");
     }
