@@ -3,7 +3,7 @@ use std::{convert::TryFrom, mem::size_of, os::fd::AsRawFd};
 use drm::control::framebuffer::Handle;
 use drm::SystemError;
 use drm_fourcc::{DrmFourcc, DrmModifier};
-use image::{GenericImage, RgbImage};
+use image::{GenericImage, RgbImage, imageops::FilterType};
 use libc::close;
 use nix::sys::mman;
 
@@ -388,5 +388,9 @@ pub fn dump_framebuffer_to_image(
 
     let image = image_result?;
 
-    Ok(image)
+    let scale = image.height()/240;
+    let resized_image = image::imageops::resize(&image, image.width()/scale, image.height()/scale, FilterType::Nearest);
+    println!(">> Resized to: {}x{} ({}) {}x{}", image.width(), image.height(), scale, resized_image.width(), resized_image.height());
+
+    Ok(resized_image)
 }
