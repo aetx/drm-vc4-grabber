@@ -389,8 +389,16 @@ pub fn dump_framebuffer_to_image(
     let image = image_result?;
 
     let scale = image.height()/240;
-    let resized_image = image::imageops::resize(&image, image.width()/scale, image.height()/scale, FilterType::Nearest);
-    println!(">> Resized to: {}x{} ({}) {}x{}", image.width(), image.height(), scale, resized_image.width(), resized_image.height());
+    if scale > 1 {
+        let resized_image = image::imageops::resize(
+            &image,
+            image.width()/scale,
+            image.height()/scale,
+            FilterType::Nearest
+        );
+        println!(">> Resized to: {}x{} ({}) {}x{}", image.width(), image.height(), scale, resized_image.width(), resized_image.height());
 
-    Ok(resized_image)
+        return Ok(resized_image)
+    }
+    Ok(image)
 }
