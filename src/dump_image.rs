@@ -130,7 +130,9 @@ fn decode_nv12_image(
 ) -> Result<RgbImage, SystemError> {
     // We assume the DRM BROADCOM SAND128 format
     if u64::from(drm_fourcc::DrmModifier::Broadcom_sand128) != modifier & !(0xFFFF << 8) {
-        panic!("Unsupported NV12 modifier value");
+        println!("Unsupported NV12 modifier value");
+        let img = RgbImage::new(256,256);
+        return Ok(img)
     }
 
     let stride = 128 / 4; // each column is 128 bytes wide, we use 4 bytes per word
